@@ -13,7 +13,7 @@ public class DragHandler : MonoBehaviour
     private bool _isDragging;
     
     // Save original mouse offset
-    private Vector3 _screenPoint;
+    private Vector3 _originalHitPoint;
     private Vector3 _offset;
 
     // cache the cam
@@ -26,8 +26,14 @@ public class DragHandler : MonoBehaviour
 
     private void OnMouseDown()
     {
-        _screenPoint = _targetCamera.WorldToScreenPoint(platformRoot.position);
-        _offset = platformRoot.position - GetDraggingPoint();
+        _originalHitPoint = platformRoot.position;
+        
+        Ray ray = _targetCamera.ScreenPointToRay(Input.mousePosition);
+        if (Physics.Raycast(ray, out var hit))
+        {
+            _originalHitPoint = hit.point;
+            _offset = platformRoot.position - _originalHitPoint;
+        }
         
         _isDragging = true;
     }
@@ -37,7 +43,7 @@ public class DragHandler : MonoBehaviour
         if (_isDragging)
         {
             Vector3 curPosition = GetDraggingPoint() + _offset;
-            curPosition.y = platformRoot.position.y; // keep original Y
+            curPosition.y = platformRoot.position.y;
             platformRoot.position = curPosition; // set new position
         }
     }
@@ -45,7 +51,7 @@ public class DragHandler : MonoBehaviour
     private Vector3 GetDraggingPoint()
     {
         Ray ray = _targetCamera.ScreenPointToRay(Input.mousePosition);
-        Plane xzPlane = new Plane(Vector3.up, new Vector3(0, platformRoot.position.y, 0));
+        Plane xzPlane = new Plane(Vector3.up, new Vector3(0, _originalHitPoint.y, 0));
         xzPlane.Raycast(ray, out var distance);
         var cursorWorldPosition = ray.GetPoint(distance);
         return cursorWorldPosition;
