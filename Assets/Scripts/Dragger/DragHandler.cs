@@ -37,7 +37,7 @@ public class DragHandler : MonoBehaviour
         if (_isDragging)
         {
             Vector3 curPosition = GetDraggingPoint() + _offset;
-            curPosition.y = platformRoot.position.y;
+            curPosition.y = platformRoot.position.y; // keep original Y
             platformRoot.position = curPosition; // set new position
         }
     }
@@ -45,8 +45,8 @@ public class DragHandler : MonoBehaviour
     private Vector3 GetDraggingPoint()
     {
         Ray ray = _targetCamera.ScreenPointToRay(Input.mousePosition);
-        Plane xy = new Plane(Vector3.up, new Vector3(0, platformRoot.position.y, 0));
-        xy.Raycast(ray, out var distance);
+        Plane xzPlane = new Plane(Vector3.up, new Vector3(0, platformRoot.position.y, 0));
+        xzPlane.Raycast(ray, out var distance);
         var cursorWorldPosition = ray.GetPoint(distance);
         return cursorWorldPosition;
     }

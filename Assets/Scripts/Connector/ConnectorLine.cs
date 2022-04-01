@@ -94,8 +94,8 @@ public class ConnectorLine : MonoBehaviour
     private Vector3 GetMousePosition()
     {
         Ray ray = _targetCamera.ScreenPointToRay(Input.mousePosition);
-        Plane xy = new Plane(Vector3.up, new Vector3(0, _fromPosition.y, 0));
-        xy.Raycast(ray, out var distance);
+        Plane xzPlane = new Plane(Vector3.up, new Vector3(0, _fromPosition.y, 0));
+        xzPlane.Raycast(ray, out var distance);
         
         var cursorWorldPosition = ray.GetPoint(distance);
         return new Vector3()
