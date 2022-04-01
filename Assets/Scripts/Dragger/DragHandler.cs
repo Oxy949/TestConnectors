@@ -27,8 +27,8 @@ public class DragHandler : MonoBehaviour
     private void OnMouseDown()
     {
         _screenPoint = _targetCamera.WorldToScreenPoint(platformRoot.position);
-        _offset = platformRoot.position - _targetCamera.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, _screenPoint.z));
-
+        _offset = platformRoot.position - GetDraggingPoint();
+        
         _isDragging = true;
     }
 
@@ -36,11 +36,19 @@ public class DragHandler : MonoBehaviour
     {
         if (_isDragging)
         {
-            Vector3 curScreenPoint = new Vector3(Input.mousePosition.x, Input.mousePosition.y, _screenPoint.z);
-            Vector3 curPosition = _targetCamera.ScreenToWorldPoint(curScreenPoint) + _offset;
-
+            Vector3 curPosition = GetDraggingPoint() + _offset;
+            curPosition.y = platformRoot.position.y;
             platformRoot.position = curPosition; // set new position
         }
+    }
+
+    private Vector3 GetDraggingPoint()
+    {
+        Ray ray = _targetCamera.ScreenPointToRay(Input.mousePosition);
+        Plane xy = new Plane(Vector3.up, new Vector3(0, platformRoot.position.y, 0));
+        xy.Raycast(ray, out var distance);
+        var cursorWorldPosition = ray.GetPoint(distance);
+        return cursorWorldPosition;
     }
 
     private void OnMouseUp()
